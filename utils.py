@@ -21,7 +21,7 @@ def compute_loss_mse(y, tx, w):
     error = y - tx @ w
     
     # Compute the loss
-    loss = (1 / y.shape[0]) * error.T @ error
+    loss = (1 / 2 * y.shape[0]) * error.T @ error
     
     return loss
 
