@@ -382,3 +382,66 @@ def variance_threshold(train_data, test_data, threshold=0.0):
     variances = np.var(train_data, axis=0)
     features_to_keep = variances > threshold
     return train_data[:, features_to_keep], test_data[:, features_to_keep]
+
+
+def smote(x, y, minority_class, k=5, num_samples=None):
+    """
+    Implement SMOTE to balance the dataset.
+
+    Args:
+        x (np.ndarray): Feature matrix.
+        y (np.ndarray): Target array.
+        minority_class (int or float): The class value that is the minority class.
+        k (int): The number of nearest neighbors to consider.
+        num_samples (int): Number of synthetic samples to generate. If None, generate enough to balance the classes.
+
+    Returns:
+        np.ndarray: New feature matrix with synthetic samples added.
+        np.ndarray: New target array with synthetic labels added.
+    """
+    minority_indices = np.where(y == minority_class)[0]
+    x_minority = x[minority_indices]
+
+    # Determine the number of synthetic samples to generate
+    if num_samples is None:
+        majority_class_count = np.sum(y != minority_class)
+        minority_class_count = len(minority_indices)
+        num_samples = majority_class_count - minority_class_count
+    print(f"Generating {num_samples} synthetic samples.")
+    
+    synthetic_samples = []
+    
+    # For each minority sample, find its k-nearest neighbors
+    for i in range(num_samples):
+        # Randomly select a minority sample
+        idx = np.random.randint(0, x_minority.shape[0])
+        sample = x_minority[idx]
+        
+        # Euclidean distances to all other minority samples
+        distances = np.linalg.norm(x_minority - sample, axis=1)
+        
+        # Sort and select the k nearest neighbors
+        nearest_indices = np.argsort(distances)[1:k+1]
+        neighbor_idx = np.random.choice(nearest_indices)
+        
+        # Select a random neighbor
+        neighbor = x_minority[neighbor_idx]
+        
+        # Generate a synthetic sample by interpolating between the sample and its neighbor
+        diff = neighbor - sample
+        gap = np.random.rand()  
+        synthetic_sample = sample + gap * diff
+        
+        synthetic_samples.append(synthetic_sample)
+
+    # Convert the synthetic samples list to a numpy array
+    synthetic_samples = np.array(synthetic_samples)
+    
+    # Create synthetic labels
+    synthetic_labels = np.full(synthetic_samples.shape[0], minority_class)
+
+    # Combine original data with synthetic data
+    x_new = np.vstack((x, synthetic_samples))
+    y_new = np.hstack((y, synthetic_labels))
+
+    return x_new, y_new
