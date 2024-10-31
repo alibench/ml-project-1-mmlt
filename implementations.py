@@ -211,57 +211,42 @@ def compute_gradient_mle(y, tx, w):
     gradient = tx.T @ (pred - y) / y.shape[0]
     return gradient
 
-def cross_validation_ridge_regression(yb, tx, lambdas, degrees):
+def cross_validation_ridge_regression(yb, tx, lambdas):
     """
-    Cross-validate ridge regression with different hyperparameters.
+    Cross-validate ridge regression with different lambda values.
 
     Args:
         yb (np.ndarray): Labels of the data.
         tx (np.ndarray): Features of the data.
         lambdas (list): List of regularization parameters to test.
-        degrees (list): List of polynomial degrees to test.
 
     Returns:
-        dict: Dictionary containing the best hyperparameters, F1 score, and weights.
+        dict: Dictionary containing the best lambda, F1 score, and weights.
     """
     best_lambda = None
-    best_degree = None
     best_f1_score = -1
     best_w = None
 
-    for degree in degrees:
-        # Generate polynomial features
-        x_poly = poly_features(tx, degree)
+    # Split data for training and testing (you may want to do k-fold cross-validation instead)
+    tx_train, tx_test, y_train, y_test = split_data(tx, yb, 0.8, seed=1)
 
-        # Split data for training and testing
-        tx_train, tx_test, y_train, y_test = split_data(x_poly, yb, 0.8, seed=1)
+    for lambda_ in lambdas:
+        # Train the model
+        w, _ = ridge_regression(y_train, tx_train, lambda_)
 
-        for lambda_ in lambdas:
-            # Train the model
-            w, _ = ridge_regression(y_train, tx_train, lambda_)
+        # Predict on the test set and calculate F1 score
+        y_pred = np.where(tx_test @ w >= 0.5, 1, -1)
+        f1 = f1_score(y_test, y_pred)
 
-            # Predict and calculate F1 score
-            y_pred = np.where(tx_test @ w >= 0.5, 1, -1)
-            f1 = f1_score(y_test, y_pred)
+        # Update best lambda if this F1 score is higher
+        if f1 > best_f1_score:
+            best_lambda = lambda_
+            best_f1_score = f1
+            best_w = w
 
-            # Update best hyperparameters if this F1 score is higher
-            if f1 > best_f1_score:
-                best_lambda = lambda_
-                best_degree = degree
-                best_f1_score = f1
-                best_w = w
-
-    # Return best hyperparameters and associated metrics
+    # Return best lambda and associated metrics
     return {
         "lambda": best_lambda,
-        "degree": best_degree,
         "f1_score": best_f1_score,
         "weights": best_w,
     }
-
-def poly_features(tx, degree):
-    tx_poly = tx
-    for d in range(2, degree + 1):
-        tx_poly = np.c_[tx_poly, np.power(tx, d)]
-        
-    return tx_poly

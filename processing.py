@@ -360,30 +360,12 @@ def encode_categorical_features_mixed(x, binary_indices, nominal_indices):
     return x
 
 
-def standardize_features(x_train, x_test, continuous_indices):
-    """
-    Standardize continuous features to have zero mean and unit variance.
-
-    Args:
-        x_train (np.ndarray): Training data with shape (N, D).
-        x_test (np.ndarray): Test data with shape (N, D).
-        continuous_indices (list): List of column indices corresponding to continuous features.
-
-    Returns:
-        x_train (np.ndarray): Scaled training data.
-        x_test (np.ndarray): Scaled test data.
-    """
-    mean = np.mean(x_train[:, continuous_indices], axis=0)
-    std = np.std(x_train[:, continuous_indices], axis=0)
-    std_replaced = np.where(std == 0, 1, std)
-    
-    # Standardize training data
-    x_train[:, continuous_indices] = (x_train[:, continuous_indices] - mean) / std_replaced
-    
-    # Standardize test data using training mean and std
-    x_test[:, continuous_indices] = (x_test[:, continuous_indices] - mean) / std_replaced
-    
-    return x_train, x_test
+def standardize_features(x):
+    """Standardize the features (mean = 0, std = 1)."""
+    mean_x = np.mean(x, axis=0)
+    std_x = np.std(x, axis=0)
+    x_standardized = (x - mean_x) / std_x
+    return x_standardized, mean_x, std_x
 
 
 def variance_threshold(x_train, x_test, threshold=0.0):
@@ -647,3 +629,7 @@ def combined_over_under_sampling(X, y, majority_class, minority_class, desired_m
 
 def feature_processing(x_train, y_train, x_text):
     return 0
+
+def add_bias_term(x):
+    bias = np.ones((x.shape[0], 1))
+    return np.hstack((bias, x))
