@@ -360,12 +360,33 @@ def encode_categorical_features_mixed(x, binary_indices, nominal_indices):
     return x
 
 
-def standardize_features(x):
-    """Standardize the features (mean = 0, std = 1)."""
-    mean_x = np.mean(x, axis=0)
-    std_x = np.std(x, axis=0)
-    x_standardized = (x - mean_x) / std_x
-    return x_standardized, mean_x, std_x
+def standardize_features(x_train, x_test, continuous_indices):
+    """
+    Standardize continuous features to have zero mean and unit variance.
+
+    Args:
+        x_train (np.ndarray): Training data with shape (n_samples, n_features).
+        x_test (np.ndarray): Test data with shape (n_samples, n_features).
+        continuous_indices (list): List of column indices corresponding to continuous features.
+
+    Returns:
+        np.ndarray: Scaled training data.
+        np.ndarray: Scaled test data.
+    """
+    # Calculate mean and std from training data
+    mean = np.mean(x_train[:, continuous_indices], axis=0)
+    std = np.std(x_train[:, continuous_indices], axis=0)
+    
+    # Prevent division by zero
+    std_replaced = np.where(std == 0, 1, std)
+    
+    # Standardize training data
+    x_train[:, continuous_indices] = (x_train[:, continuous_indices] - mean) / std_replaced
+    
+    # Standardize test data using training mean and std
+    x_test[:, continuous_indices] = (x_test[:, continuous_indices] - mean) / std_replaced
+    
+    return x_train, x_test
 
 
 def variance_threshold(x_train, x_test, threshold=0.0):
