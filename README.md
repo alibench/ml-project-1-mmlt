@@ -41,8 +41,11 @@ The project is structured as follows:
         ├── x_train.csv
         ├── x_test.csv
         ├── y_train.csv
-    
-|__ predictions
+
+├── docs
+    ├── project1_description.pdf
+
+|__ submissions
 │   ├── submission.csv
 
 |__ helpers.py
