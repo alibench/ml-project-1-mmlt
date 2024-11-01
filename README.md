@@ -24,7 +24,7 @@ This project was developed by Sarra Chaabane, Aicha Masmoudi and Ali Benchekroun
    ```sh
    git clone https://github.com/CS-433/ml-project-1-mmlt/tree/main
     ```
-2. Download the dataset and add it to the `data/dataset_to_release` folder (<a href="https://www.cdc.gov/brfss/annual_data/annual_2015.html">CS433 Machine Learning</a>.)
+2. Download the dataset and add it to the `data/dataset` folder (<a href="https://www.cdc.gov/brfss/annual_data/annual_2015.html">CS433 Machine Learning</a>.)
 
 ### Running
 
