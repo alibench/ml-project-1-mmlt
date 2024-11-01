@@ -50,6 +50,7 @@ The project is structured as follows:
 |__ metrics.py
 |__ processing.py
 |__ run.ipynb
+|__ training.ipynb
 |__ utils.py
 ```
 <!-- Content of the files -->
@@ -60,6 +61,7 @@ The project is structured as follows:
 * `metrics.py`: Contains the metrics used to evaluate the models.
 * `processing.py`: Contains the functions used to preprocess the data.
 * `run.ipynb`: Main file; Jupyter notebook to run the project.
+* `training.ipynb`: Jupyter notebook with the function used to train the models.
 * `utils.py`: Contains utility functions used in the project.
 
 <p align="right">(<a href="#top">back to top</a>)</p>

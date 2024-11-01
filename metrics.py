@@ -1,5 +1,4 @@
 import numpy as np
-from utils import *
 
 def confusion_matrix(y_true, y_pred):
     """Compute the confusion matrix.
@@ -19,96 +18,66 @@ def confusion_matrix(y_true, y_pred):
     matrix = np.array([[TN, FP], [FN, TP]])
     return (matrix/np.sum(matrix))
 
-def accuracy(y_true, y_pred):
+def calculate_precision(y_true, y_pred):
     """
-    Compute the accuracy.
-    
-    Args:
-        y_true (np.ndarray): True labels.
-        y_pred (np.ndarray): Predicted labels.
-    
-    Returns:
-        float: Accuracy.
-    """
-    matrix = confusion_matrix(y_true, y_pred)
-    TN = matrix[0, 0]
-    FP = matrix[0, 1]
-    FN = matrix[1, 0]
-    TP = matrix[1, 1]
-    accuracy = (TP + TN) / (TP + TN + FP + FN)
-    
-    return accuracy
+    Calculates the precision metric for binary classification.
+    Supports labels with values -1 and 1, or 0 and 1.
 
-def precision(y_true, y_pred):
-    """
-    Compute the precision. 
-    
-    Args:
-        y_true (np.ndarray): True labels.
-        y_pred (np.ndarray): Predicted labels.
-    
+    Parameters:
+    - y_true: numpy array of true labels (-1 and 1, or 0 and 1)
+    - y_pred: numpy array of predicted labels (-1 and 1, or 0 and 1)
+
     Returns:
-        float: precision.
+    - precision: float
     """
-    matrix = confusion_matrix(y_true, y_pred)
-    TP = matrix[1, 1]
-    FP = matrix[0, 1]
-    precision = TP / (TP + FP) if (TP + FP) > 0 else 0
+    # Map labels to 0 and 1
+    y_true_mapped = np.where(y_true == -1, 0, y_true)
+    y_pred_mapped = np.where(y_pred == -1, 0, y_pred)
+    
+    true_positive = np.sum((y_pred_mapped == 1) & (y_true_mapped == 1))
+    predicted_positive = np.sum(y_pred_mapped == 1)
+    if predicted_positive == 0:
+        return 0.0
+    precision = true_positive / predicted_positive
     return precision
 
-def recall(y_true, y_pred):
+def calculate_recall(y_true, y_pred):
     """
-    Compute the recall (sensitivity).
-    
-    Args:
-       y_true (np.ndarray): True labels.
-       y_pred (np.ndarray): Predicted labels.
-    
+    Calculates the recall metric for binary classification.
+    Supports labels with values -1 and 1, or 0 and 1.
+
+    Parameters:
+    - y_true: numpy array of true labels (-1 and 1, or 0 and 1)
+    - y_pred: numpy array of predicted labels (-1 and 1, or 0 and 1)
+
     Returns:
-        float: Recall.
+    - recall: float
     """
-    matrix = confusion_matrix(y_true, y_pred)
-    TP = matrix[1, 1]
-    FN = matrix[1, 0]
-    recall = TP / (TP + FN) if (TP + FN) > 0 else 0
+    # Map labels to 0 and 1
+    y_true_mapped = np.where(y_true == -1, 0, y_true)
+    y_pred_mapped = np.where(y_pred == -1, 0, y_pred)
+    
+    true_positive = np.sum((y_pred_mapped == 1) & (y_true_mapped == 1))
+    actual_positive = np.sum(y_true_mapped == 1)
+    if actual_positive == 0:
+        return 0.0
+    recall = true_positive / actual_positive
     return recall
 
-def f1_score(y_true, y_pred):
+def calculate_f1_score(y_true, y_pred):
     """
-    Compute the F1 score.
-    
-    Args:
-        y_true (np.ndarray): True labels.
-        y_pred (np.ndarray): Predicted labels.
-    
-    Returns:
-        float: F1 score.
-    """
-    prec = precision(y_true, y_pred)
-    rec = recall(y_true, y_pred)
-    f1 = 2 * (prec * rec) / (prec + rec) if (prec + rec) > 0 else 0
-    return f1
+    Calculates the F1-score metric.
 
-def evaluate_model(y_true, y_pred):
-    """
-    Evaluate the model using accuracy, precision, recall, and F1 score.
-    
-    Args:
-        y_true (np.ndarray): True labels.
-        y_pred (np.ndarray): Predicted labels.
-    
+    Parameters:
+    - y_true: numpy array of true labels (-1 and 1, or 0 and 1)
+    - y_pred: numpy array of predicted labels (-1 and 1, or 0 and 1)
+
     Returns:
-        dict: Dictionary containing the evaluation metrics.
+    - f1_score: float
     """
-    acc = accuracy(y_true, y_pred)
-    prec = precision(y_true, y_pred)
-    rec = recall(y_true, y_pred)
-    f1 = f1_score(y_true, y_pred)
-    
-    return {
-        "Accuracy": acc,
-        "Precision": prec,
-        "Recall": rec,
-        "F1 Score": f1,
-        "Confusion Matrix": confusion_matrix(y_true, y_pred)
-    }
+    precision = calculate_precision(y_true, y_pred)
+    recall = calculate_recall(y_true, y_pred)
+    if (precision + recall) == 0:
+        return 0.0
+    f1_score = 2 * (precision * recall) / (precision + recall)
+    return f1_score
